@@ -1,0 +1,102 @@
+@import '@fontsource-variable/fraunces';
+@import '@fontsource-variable/inter';
+
+:root {
+  --bg: #f6f2eb;
+  --bg-2: #efe9df;
+  --card: #fffdf9;
+  --ink: #23201c;
+  --ink-2: #5d574f;
+  --ink-3: #8c857b;
+  --line: rgba(35, 32, 28, 0.1);
+  --line-2: rgba(35, 32, 28, 0.18);
+  --accent: #c8553d;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(200, 85, 61, 0.12);
+  --teal: #1f5c6b;
+  --gold: #d29b2b;
+  --good: #3f8f5a;
+  --shadow-1: 0 1px 2px rgba(35, 32, 28, 0.06), 0 2px 8px rgba(35, 32, 28, 0.06);
+  --shadow-2: 0 8px 30px rgba(35, 32, 28, 0.14), 0 2px 6px rgba(35, 32, 28, 0.06);
+  --shadow-3: 0 24px 60px rgba(20, 16, 12, 0.28);
+  --glass: rgba(255, 253, 249, 0.82);
+  --radius: 18px;
+  --radius-s: 12px;
+  --display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #141311;
+  --bg-2: #1c1a17;
+  --card: #22201c;
+  --ink: #f1ece4;
+  --ink-2: #bdb5aa;
+  --ink-3: #8a8378;
+  --line: rgba(241, 236, 228, 0.09);
+  --line-2: rgba(241, 236, 228, 0.16);
+  --accent: #e07457;
+  --accent-soft: rgba(224, 116, 87, 0.16);
+  --teal: #5fb0c0;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 24px 60px rgba(0, 0, 0, 0.6);
+  --glass: rgba(34, 32, 28, 0.84);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.45 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; opacity: 0.5; }
+a { color: inherit; }
+h1, h2, h3 { font-family: var(--display); font-weight: 560; letter-spacing: -0.01em; margin: 0; font-optical-sizing: auto; }
+:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+::selection { background: var(--accent-soft); }
+
+/* shared bits */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 46px; padding: 0 20px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: var(--card); font-weight: 600; letter-spacing: 0.005em;
+  transition: transform 0.15s var(--ease), background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  user-select: none; -webkit-user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; box-shadow: 0 6px 18px -6px var(--accent); }
+.btn.dark { background: var(--ink); color: var(--bg); border-color: transparent; }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.small { height: 36px; padding: 0 14px; font-size: 14px; }
+.btn.block { width: 100%; }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%; display: inline-grid; place-items: center;
+  border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.15s var(--ease), background 0.2s, color 0.2s;
+  flex: none;
+}
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn[aria-pressed='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.icon-btn svg, .btn svg { width: 20px; height: 20px; }
+.eyebrow { font-size: 11.5px; font-weight: 650; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+.muted { color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--bg-2); font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.scroll-x { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 4px 20px 12px; margin: 0 -20px; }
+.scroll-x::-webkit-scrollbar { display: none; }
+.scroll-x > * { scroll-snap-align: start; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

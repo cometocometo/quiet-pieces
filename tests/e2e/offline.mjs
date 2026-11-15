@@ -1,0 +1,18 @@
+import { createRequire } from 'node:module';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const url = process.env.BASE;
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 1200, height: 800 } });
+const p = await ctx.newPage();
+const errs = []; p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
+await p.goto(url); await p.waitForSelector('.home');
+await p.waitForFunction(() => navigator.serviceWorker?.controller || new Promise((r) => navigator.serviceWorker.ready.then(() => setTimeout(r, 500))), null, { timeout: 20000 });
+await p.reload(); await p.waitForSelector('.home'); await p.waitForTimeout(2500);
+await ctx.setOffline(true);
+await p.reload(); await p.waitForSelector('.home', { timeout: 15000 });
+console.log('offline home OK');
+await p.click('.pack >> nth=0'); await p.click('.grid .pic >> nth=0'); await p.click('.counts button:has-text("12")'); await p.click('button:has-text("Start puzzle")');
+await p.waitForFunction(() => !document.querySelector('.loading'), null, { timeout: 60000 });
+console.log('offline play OK');
+console.log('errors', errs);
+await b.close();

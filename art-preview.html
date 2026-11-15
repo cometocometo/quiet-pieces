@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Art preview</title>
+<style>body{margin:0;background:#222;color:#ddd;font:12px system-ui}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--w,360px),1fr));gap:8px;padding:8px}figure{margin:0}canvas{width:100%;display:block;border-radius:4px}figcaption{padding:4px 2px}</style>
+</head><body><div class="grid" id="grid"></div>
+<script type="module">
+import { drawRecipe } from '/src/art/render.ts';
+const q = new URLSearchParams(location.search);
+const list = JSON.parse(q.get('list') || '[]');
+const W = +(q.get('w') || 1200), H = +(q.get('h') || 800);
+document.documentElement.style.setProperty('--w', (q.get('cw') || 360) + 'px');
+const grid = document.getElementById('grid');
+const times = [];
+for (const r of list) {
+  const t0 = performance.now();
+  const cv = drawRecipe(r, W, H);
+  times.push([r.gen + ':' + r.v, Math.round(performance.now() - t0)]);
+  const fig = document.createElement('figure');
+  const out = document.createElement('canvas'); out.width = W; out.height = H;
+  out.getContext('2d').drawImage(cv, 0, 0);
+  fig.append(out); const cap = document.createElement('figcaption'); cap.textContent = `${r.gen} v${r.v} seed ${r.seed}`; fig.append(cap);
+  grid.append(fig);
+}
+window.__times = times; window.__done = true;
+</script></body></html>

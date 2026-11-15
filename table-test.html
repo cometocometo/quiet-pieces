@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Table test</title>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#222}#host{position:fixed;inset:0}</style></head>
+<body><div id="host"></div>
+<script type="module">
+import { Puzzle } from '/src/engine/puzzle.ts';
+import { chooseGrid } from '/src/engine/geometry.ts';
+import { PlayTable } from '/src/engine/table.ts';
+import { loadPicture, buildSheets } from '/src/art/pictures.ts';
+const q = new URLSearchParams(location.search);
+const n = +(q.get('n') || 48), rot = q.get('rot') === '1', tray = q.get('tray') === '1';
+const pic = q.get('pic') || 'golden-hour/1';
+const { cols, rows } = chooseGrid(n, 1.5);
+const puzzle = Puzzle.create({ pictureId: pic, aspect: 1.5, cols, rows, seed: 1234, style: q.get('style') || 'classic', rotation: rot });
+const t0 = performance.now();
+const picture = await loadPicture(pic, 'full');
+const t1 = performance.now();
+window.events = [];
+const table = await PlayTable.create(document.getElementById('host'), puzzle, picture,
+  { surface: q.get('bg') || 'linen', outline: false, reduceMotion: false, tray },
+  { progress: (p) => events.push(['progress', p.progress]), changed() {}, firstMove() { events.push(['first']); }, complete() { events.push(['complete']); }, hintUsed() {} },
+  buildSheets);
+window.table = table; window.puzzle = puzzle;
+window.timing = { picture: Math.round(t1 - t0), table: Math.round(performance.now() - t1) };
+window.ready = true;
+</script></body></html>
