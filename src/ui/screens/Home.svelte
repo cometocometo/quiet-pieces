@@ -76,10 +76,6 @@
         <p class="kicker"><span class="dot"></span> Free to play · No ads · No sign-up</p>
         <h1>The world’s most beautiful places, <em>one piece at a time.</em></h1>
         <p class="lede">Real photographs of Banff’s turquoise lakes, quiet coastlines and painted hill towns, cut into satisfying tab-and-blank pieces that click together. A fresh puzzle every day. Plays right here in your browser, even offline.</p>
-        <div class="ctas">
-          <button class="btn primary big" onclick={playDaily}><Icon name="play" /> Play today’s puzzle</button>
-          <button class="btn big" onclick={scrollToCollections}>Browse {pictureCount} pictures</button>
-        </div>
         <ul class="trust">
           <li><Icon name="check" size={16} /> {daily.pieces}-piece daily puzzle, about {Math.max(3, Math.round(daily.pieces / 9))} minutes</li>
           <li><Icon name="check" size={16} /> 12 to 1,000 pieces when you want a challenge</li>
@@ -87,10 +83,26 @@
         </ul>
       </div>
       <div class="showpiece">
-        <div class="frame"><HeroAssemble id="banff/1" /></div>
+        <div class="frame-wrap">
+        <button class="frame" onclick={playDaily} aria-label="Play today’s puzzle: {dailyPic.title}, {daily.pieces} pieces">
+          {#key daily.pictureId}<HeroAssemble id={daily.pictureId} />{/key}
+          <span class="frame-label">
+            <span class="fl-tag"><Icon name="calendar" size={13} /> Today’s puzzle</span>
+            <span class="fl-title">{dailyPic.title}</span>
+            <span class="fl-sub">{daily.pieces} pieces · {dailyPic.credit ? 'real photograph' : 'illustration'}<span class="fl-extra">{' · new every day'}</span></span>
+          </span>
+        </button>
         <span class="float f1"><Icon name="puzzle" size={15} /> Click!</span>
-        <span class="float f2"><Icon name="flame" size={15} fill /> Daily streaks</span>
-        <span class="caption">Moraine Lake, Banff · real photograph</span>
+        <span class="float f2"><Icon name="flame" size={15} fill /> {streak > 0 ? `${streak}-day streak` : 'Daily streaks'}</span>
+        </div>
+        <div class="ctas">
+          <button class="btn {dailyDone ? '' : 'primary'} big" onclick={playDaily}>
+            {#if dailyDone}<Icon name="check" /> Done in {formatTime(dailyDone)}
+            {:else if dailySave}<Icon name="play" /> Continue · {Math.round(dailySave.progress * 100)}%
+            {:else}<Icon name="play" /> Play today’s puzzle{/if}
+          </button>
+          <button class="btn big" onclick={scrollToCollections}>Browse {pictureCount} pictures</button>
+        </div>
       </div>
     </section>
 
@@ -101,26 +113,6 @@
       <div><span class="fi"><Icon name="heart" /></span><b>Calm by design</b><p>No ads, no timers you can’t hide, gentle music. Just you and the picture.</p></div>
     </section>
 
-  <!-- Daily puzzle -->
-  <section class="daily" aria-label="Today's puzzle">
-    <button class="daily-card" onclick={playDaily}>
-      <div class="daily-art"><Thumb id={daily.pictureId} alt={dailyPic.title} radius={0} size="card" /></div>
-      <div class="daily-shade"></div>
-      <div class="daily-body">
-        <div class="daily-tags">
-          <span class="tag"><Icon name="calendar" size={14} /> Daily puzzle</span>
-          {#if streak > 0}<span class="tag flame"><Icon name="flame" size={14} fill /> {streak}-day streak</span>{/if}
-        </div>
-        <h2>{dailyPic.title}</h2>
-        <p>{daily.pieces} pieces · a new picture every day</p>
-        <span class="btn {dailyDone ? '' : 'primary'} small play">
-          {#if dailyDone}<Icon name="check" /> Done in {formatTime(dailyDone)}
-          {:else if dailySave}<Icon name="play" /> Continue · {Math.round(dailySave.progress * 100)}%
-          {:else}<Icon name="play" /> Play today’s puzzle{/if}
-        </span>
-      </div>
-    </button>
-  </section>
 
   {#if inProgress.length}
     <section>
@@ -215,24 +207,35 @@
   .pitch h1 { font-size: clamp(36px, 5.6vw, 64px); line-height: 1.02; letter-spacing: -0.025em; font-weight: 600; }
   .pitch h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
   .lede { font-size: clamp(16px, 1.6vw, 18.5px); line-height: 1.55; color: var(--ink-2); margin: 18px 0 24px; max-width: 34em; }
-  .ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 26px; }
   .btn.big { height: 54px; padding: 0 26px; font-size: 16px; }
   .trust { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 8px; color: var(--ink-2); font-size: 14.5px; }
   .trust li { display: flex; gap: 10px; align-items: center; }
   .trust :global(svg) { color: var(--good); flex: none; }
   .showpiece { position: relative; }
+  .frame-wrap { position: relative; }
   @media (max-width: 899px) {
     .showpiece { order: -1; margin: 0 6px; }
     .pitch h1 { font-size: clamp(32px, 8.4vw, 44px); }
     .lede { margin: 14px 0 20px; }
     .ctas .btn { flex: 1 1 100%; }
     .f1 { left: -4px; } .f2 { right: -2px; }
+    .frame-label { left: 4%; right: 4%; bottom: 5%; padding: 8px 11px; gap: 2px; border-radius: 12px; }
+    .fl-tag { font-size: 10px; }
+    .fl-title { font-size: 18px; }
+    .fl-sub { font-size: 12px; }
+    .fl-extra { display: none; }
   }
-  .frame { aspect-ratio: 3 / 2; border-radius: 22px; transform: rotate(1.5deg); background: radial-gradient(120% 90% at 50% 40%, var(--card), var(--bg-2)); box-shadow: var(--shadow-3); border: 1px solid var(--line); overflow: hidden; }
+  .frame { position: relative; display: block; width: 100%; padding: 0; cursor: pointer; transition: transform .3s var(--ease), box-shadow .3s; aspect-ratio: 3 / 2; border-radius: 22px; transform: rotate(1.5deg); background: radial-gradient(120% 90% at 50% 40%, var(--card), var(--bg-2)); box-shadow: var(--shadow-3); border: 1px solid var(--line); overflow: hidden; }
   .float { position: absolute; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow-2); font-weight: 650; font-size: 13px; animation: bob 4s ease-in-out infinite; }
   .f1 { top: 8%; left: -10px; color: var(--accent); }
-  .f2 { bottom: 14%; right: -8px; color: #e8792f; animation-delay: -2s; }
-  .caption { display: block; text-align: center; margin-top: 14px; font-size: 12.5px; color: var(--ink-3); }
+  .f2 { bottom: -14px; right: -8px; color: #e8792f; animation-delay: -2s; }
+  .frame:hover { transform: rotate(0.5deg) translateY(-3px) scale(1.01); }
+  .frame:active { transform: rotate(0.5deg) scale(0.99); }
+  .frame-label { position: absolute; left: 6%; right: 6%; bottom: 7%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 14px; border-radius: 16px; text-align: left; color: #fff; background: linear-gradient(180deg, rgba(10,12,18,.15), rgba(10,12,18,.62)); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); pointer-events: none; }
+  .fl-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+  .fl-title { font-family: var(--display); font-size: clamp(20px, 2.4vw, 26px); font-weight: 600; line-height: 1.1; }
+  .fl-sub { font-size: 13px; opacity: .88; }
   @keyframes bob { 50% { transform: translateY(-6px); } }
   .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 30px; }
   .features div { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px; box-shadow: var(--shadow-1); }
@@ -246,24 +249,6 @@
   .foot-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--ink-2); }
   .mark.small { width: 24px; height: 24px; border-radius: 7px; }
 
-  .daily-card {
-    position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; max-height: 460px; border: none; padding: 0; overflow: hidden;
-    border-radius: 26px; box-shadow: var(--shadow-2); text-align: left; color: #fff; background: #222;
-    transition: transform 0.25s var(--ease), box-shadow 0.25s;
-  }
-  @media (min-width: 760px) { .daily-card { aspect-ratio: 21 / 9; } }
-  .daily-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); }
-  .daily-card:active { transform: scale(0.99); }
-  .daily-art { position: absolute; inset: 0; }
-  .daily-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.65) 100%); }
-  .daily-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px; }
-  .daily-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-  .tag { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 999px; background: rgba(255,255,255,.18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); font-size: 12.5px; font-weight: 650; }
-  .tag.flame { background: rgba(255, 140, 60, .85); }
-  .daily-body h2 { font-size: clamp(26px, 4.4vw, 40px); line-height: 1.05; text-shadow: 0 2px 20px rgba(0,0,0,.35); }
-  .daily-body p { margin: 6px 0 14px; opacity: .9; }
-  .play { pointer-events: none; }
-  .daily-body .btn:not(.primary) { background: rgba(255,255,255,.92); color: #1e1b17; }
 
   section { margin-top: 30px; }
   .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
