@@ -75,6 +75,12 @@
       <div class="pitch">
         <p class="kicker"><span class="dot"></span> Free to play · No ads · No sign-up</p>
         <h1>The world’s most beautiful places, <em>one piece at a time.</em></h1>
+        <ul class="points">
+          <li><Icon name="check" size={18} /><span><b>Real places, real photos.</b> Turquoise Rockies lakes today, more destinations on the way, plus 110 hand-made illustrations.</span></li>
+          <li><Icon name="check" size={18} /><span><b>{daily.pieces}-piece daily puzzle,</b> about {Math.max(3, Math.round(daily.pieces / 9))} minutes. A new picture every day.</span></li>
+          <li><Icon name="check" size={18} /><span><b>12 to 1,000 pieces</b> when you want a challenge.</span></li>
+          <li><Icon name="check" size={18} /><span><b>Your progress saves itself</b> right on this device. No account needed.</span></li>
+        </ul>
       </div>
       <div class="showpiece">
         <div class="frame-wrap">
@@ -99,15 +105,6 @@
         </div>
       </div>
     </section>
-
-    <section class="features" aria-label="Why you’ll like it">
-      <div><span class="fi"><Icon name="image" /></span><b>Real places, real photos</b><p>Turquoise Rockies lakes today, more destinations on the way, plus 110 hand-made illustrations.</p></div>
-      <div><span class="fi"><Icon name="calendar" /></span><b>{daily.pieces}-piece daily puzzle</b><p>About {Math.max(3, Math.round(daily.pieces / 9))} minutes. A new picture every day.</p></div>
-      <div><span class="fi"><Icon name="puzzle" /></span><b>12 to 1,000 pieces</b><p>When you want a challenge.</p></div>
-      <div><span class="fi"><Icon name="check" /></span><b>Your progress saves itself</b><p>Right on this device. No account needed.</p></div>
-    </section>
-
-
   {#if inProgress.length}
     <section>
       <div class="section-head"><h2>Continue</h2></div>
@@ -226,11 +223,10 @@
   .fl-title { font-family: var(--display); font-size: clamp(20px, 2.4vw, 26px); font-weight: 600; line-height: 1.1; }
   .fl-sub { font-size: 13px; opacity: .88; }
   @keyframes bob { 50% { transform: translateY(-6px); } }
-  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 30px; }
-  .features div { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px; box-shadow: var(--shadow-1); }
-  .features b { display: block; font-family: var(--display); font-size: 18px; font-weight: 600; margin: 10px 0 4px; }
-  .features p { margin: 0; color: var(--ink-2); font-size: 14px; }
-  .fi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+  .points { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; color: var(--ink-2); font-size: 16px; line-height: 1.45; max-width: 34em; }
+  .points li { display: flex; gap: 12px; align-items: flex-start; }
+  .points :global(svg) { flex: none; margin-top: 2px; color: var(--good); }
+  .points b { color: var(--ink); font-weight: 650; }
   .install { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-1); }
   .ins-icon img { border-radius: 14px; display: block; }
   .ins-text { flex: 1; }
