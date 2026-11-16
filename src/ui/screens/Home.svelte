@@ -75,12 +75,6 @@
       <div class="pitch">
         <p class="kicker"><span class="dot"></span> Free to play · No ads · No sign-up</p>
         <h1>The world’s most beautiful places, <em>one piece at a time.</em></h1>
-        <p class="lede">Real photographs of Banff’s turquoise lakes, quiet coastlines and painted hill towns, cut into satisfying tab-and-blank pieces that click together. A fresh puzzle every day. Plays right here in your browser, even offline.</p>
-        <ul class="trust">
-          <li><Icon name="check" size={16} /> {daily.pieces}-piece daily puzzle, about {Math.max(3, Math.round(daily.pieces / 9))} minutes</li>
-          <li><Icon name="check" size={16} /> 12 to 1,000 pieces when you want a challenge</li>
-          <li><Icon name="check" size={16} /> Your progress saves itself on this device</li>
-        </ul>
       </div>
       <div class="showpiece">
         <div class="frame-wrap">
@@ -108,9 +102,9 @@
 
     <section class="features" aria-label="Why you’ll like it">
       <div><span class="fi"><Icon name="image" /></span><b>Real places, real photos</b><p>Turquoise Rockies lakes today, more destinations on the way, plus 110 hand-made illustrations.</p></div>
-      <div><span class="fi"><Icon name="calendar" /></span><b>A new puzzle every day</b><p>Short and relaxing. Keep a streak going with friends.</p></div>
-      <div><span class="fi"><Icon name="puzzle" /></span><b>Pieces that feel right</b><p>Classic tabs and blanks that snap together with a satisfying click.</p></div>
-      <div><span class="fi"><Icon name="heart" /></span><b>Calm by design</b><p>No ads, no timers you can’t hide, gentle music. Just you and the picture.</p></div>
+      <div><span class="fi"><Icon name="calendar" /></span><b>{daily.pieces}-piece daily puzzle</b><p>About {Math.max(3, Math.round(daily.pieces / 9))} minutes. A new picture every day.</p></div>
+      <div><span class="fi"><Icon name="puzzle" /></span><b>12 to 1,000 pieces</b><p>When you want a challenge.</p></div>
+      <div><span class="fi"><Icon name="check" /></span><b>Your progress saves itself</b><p>Right on this device. No account needed.</p></div>
     </section>
 
 
@@ -206,18 +200,13 @@
   .kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(200,85,61,.18); }
   .pitch h1 { font-size: clamp(36px, 5.6vw, 64px); line-height: 1.02; letter-spacing: -0.025em; font-weight: 600; }
   .pitch h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
-  .lede { font-size: clamp(16px, 1.6vw, 18.5px); line-height: 1.55; color: var(--ink-2); margin: 18px 0 24px; max-width: 34em; }
   .ctas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 26px; }
   .btn.big { height: 54px; padding: 0 26px; font-size: 16px; }
-  .trust { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 8px; color: var(--ink-2); font-size: 14.5px; }
-  .trust li { display: flex; gap: 10px; align-items: center; }
-  .trust :global(svg) { color: var(--good); flex: none; }
   .showpiece { position: relative; }
   .frame-wrap { position: relative; }
   @media (max-width: 899px) {
     .showpiece { order: -1; margin: 0 6px; }
     .pitch h1 { font-size: clamp(32px, 8.4vw, 44px); }
-    .lede { margin: 14px 0 20px; }
     .ctas .btn { flex: 1 1 100%; }
     .f1 { left: -4px; } .f2 { right: -2px; }
     .frame-label { left: 4%; right: 4%; bottom: 5%; padding: 8px 11px; gap: 2px; border-radius: 12px; }
