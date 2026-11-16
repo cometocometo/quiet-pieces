@@ -109,6 +109,39 @@ export const sfx = {
     tone(196, 196, 2.4, 0.06, 'sine', 0.5, 0.9);
     vibrate([15, 60, 15, 60, 40]);
   },
+  /** Rocket leaving the ground: a short rising hiss. */
+  launch() {
+    const c = ac(); if (!c) return;
+    const t = c.currentTime;
+    const src = c.createBufferSource(); src.buffer = noise(c);
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 6;
+    bp.frequency.setValueAtTime(900, t); bp.frequency.exponentialRampToValueAtTime(3200, t + 0.7);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+    src.connect(bp).connect(g).connect(sfxBus);
+    src.start(t, Math.random() * 0.2); src.stop(t + 0.85);
+  },
+  /** A shell bursting: a deep thump with a rumble, delayed by distance. */
+  boom(delay = 0.2) {
+    const c = ac(); if (!c) return;
+    const t = c.currentTime + delay;
+    const src = c.createBufferSource(); src.buffer = noise(c);
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(1400, t); lp.frequency.exponentialRampToValueAtTime(120, t + 0.9);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    src.connect(lp).connect(g).connect(sfxBus);
+    const s2 = c.createGain(); s2.gain.value = 0.6; g.connect(s2).connect(reverbSend);
+    src.start(t); src.stop(t + 1.3);
+    const o = c.createOscillator(), og = c.createGain();
+    o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(38, t + 0.5);
+    og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.35, t + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    o.connect(og).connect(sfxBus); o.start(t); o.stop(t + 0.65);
+  },
+  /** Glitter crackling: many tiny pops spread over a second. */
+  crackle() {
+    for (let i = 0; i < 26; i++) tick(3000 + Math.random() * 4000, 4, 0.02, 0.05 + Math.random() * 0.08, Math.random() * 1.1, 0.3);
+  },
   levelUp() { [0, 1, 2, 3, 4, 5].forEach((s, i) => tone(note(523, s), note(523, s), 0.5, 0.06, 'triangle', i * 0.06, 0.8)); },
 };
 

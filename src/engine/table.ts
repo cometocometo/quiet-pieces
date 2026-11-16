@@ -11,6 +11,7 @@ import { sfx } from '../audio/audio';
 import { surfaceCanvas, SURFACES } from './backgrounds';
 import { tracePath } from './geometry';
 import { arrange, groupBox, tableFor, type Rect } from './layout';
+import { Fireworks } from './fireworks';
 import type { Group, Puzzle, Rot } from './puzzle';
 import { mulberry32 } from './rng';
 import { chooseScale, type SheetLayout, type SheetResult } from './sheets';
@@ -106,7 +107,7 @@ export class PlayTable {
   private hintState: { gid: number; t0: number; marks: Container } | null = null;
   private lastHintGid = -1;
   private flashes: { s: Sprite; t0: number }[] = [];
-  private confetti: { s: Sprite; vx: number; vy: number; vr: number; life: number }[] = [];
+  private fireworks: Fireworks | null = null;
   private finishT0 = 0;
   private rnd = mulberry32(Date.now() & 0xffff);
   private destroyed = false;
@@ -905,34 +906,24 @@ export class PlayTable {
     this.fitBoard(true);
     sfx.complete();
     window.setTimeout(() => this.burst(), 500);
-    window.setTimeout(() => this.events.complete(), 1700);
+    window.setTimeout(() => this.events.complete(), 3200);
   }
 
   private stepFinish(now: number) {
     const t = (now - this.finishT0 - 300) / 1100;
     this.finishSprite.alpha = Math.max(0, Math.min(1, EASE(Math.max(0, t))));
-    for (let k = this.confetti.length - 1; k >= 0; k--) {
-      const c = this.confetti[k];
-      c.vy += 0.28; c.vx *= 0.985; c.vy *= 0.985;
-      c.s.x += c.vx; c.s.y += c.vy; c.s.rotation += c.vr; c.life++;
-      c.s.scale.y = Math.cos(c.life * 0.15) * c.s.scale.x;
-      if (c.s.y > this.H + 40 || c.life > 420) { c.s.destroy(); this.confetti.splice(k, 1); }
+    if (this.fireworks && !this.fireworks.step(this.app.ticker.deltaMS / 1000)) {
+      this.fireworks.destroy();
+      this.fireworks = null;
     }
   }
 
   private burst() {
     if (this.settings.reduceMotion) return;
-    const colours = [0xe0795a, 0xf2c14e, 0x3c8fb3, 0x7fb069, 0xc4000b, 0xffffff, 0x6b4dff];
-    for (let i = 0; i < 180; i++) {
-      const s = new Sprite(Texture.WHITE);
-      const side = i % 2 ? 1 : -1;
-      s.width = 7 + Math.random() * 7; s.height = 4 + Math.random() * 4;
-      s.anchor.set(0.5);
-      s.tint = colours[i % colours.length];
-      s.position.set(side > 0 ? -10 : this.W + 10, this.H * (0.55 + Math.random() * 0.3));
-      this.confettiLayer.addChild(s);
-      this.confetti.push({ s, vx: side * (6 + Math.random() * 11), vy: -(9 + Math.random() * 12), vr: (Math.random() - 0.5) * 0.4, life: 0 });
-    }
+    this.fireworks = new Fireworks();
+    this.fireworks.resize(this.W, this.H);
+    this.confettiLayer.addChild(this.fireworks.layer);
+    this.fireworks.show();
   }
 
   /** A share-ready image of the finished picture. */
