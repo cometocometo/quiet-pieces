@@ -63,7 +63,9 @@ const DAILY_STARTER_PIECES = 36;
 /** Packs whose pictures have clear, varied regions: good for a relaxed daily. */
 const DAILY_PACKS = ['banff', 'golden-hour', 'coastlines', 'countryside', 'little-towns', 'under-the-sea', 'garden'];
 export function dailyPuzzle(date = today(), completed = Infinity) {
-  const pool = allPictures().filter((p) => DAILY_PACKS.includes(p.pack));
+  // first puzzles are always real photographs: that is what new players came for
+  const packsToday = completed < 3 ? ['banff'] : DAILY_PACKS;
+  const pool = allPictures().filter((p) => packsToday.includes(p.pack));
   const pics = pool.length ? pool : allPictures();
   const h = hashString('daily:' + date);
   const pic = pics[h % pics.length];

@@ -7,6 +7,8 @@
   import { app, go, saveFor, toast } from '../../app/state.svelte';
   import Icon from '../components/Icon.svelte';
   import Thumb from '../components/Thumb.svelte';
+  import HeroAssemble from '../components/HeroAssemble.svelte';
+  import { install, promptInstall } from '../../app/install.svelte';
   import { onMount } from 'svelte';
 
   const date = today();
@@ -19,6 +21,15 @@
   let inProgress = $derived(app.saves.filter((s) => !s.daily && picture(s.pictureId)).slice(0, 12));
   let mine = $derived([...userPictures.values()]);
   let fileInput: HTMLInputElement;
+  /** First visit (or nothing played yet): show the full welcome. */
+  let isNew = $derived(app.profile.completed === 0 && app.saves.length === 0);
+  const pictureCount = packs.reduce((n, p) => n + p.pictures.length, 0);
+  let showIosTip = $state(false);
+  function scrollToCollections() { document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' }); }
+  async function addToHome() {
+    if (install.available) await promptInstall();
+    else showIosTip = !showIosTip;
+  }
 
   const greeting = (() => {
     const h = new Date().getHours();
@@ -54,22 +65,54 @@
       <span class="word">Quiet Pieces</span>
     </div>
     <div class="actions">
-      <button class="level" onclick={() => go({ name: 'profile' })} aria-label="Profile, level {lvl.level}">
+      {#if !isNew}<button class="level" onclick={() => go({ name: 'profile' })} aria-label="Profile, level {lvl.level}">
         <svg viewBox="0 0 36 36" class="ring" aria-hidden="true">
           <circle cx="18" cy="18" r="15.5" class="bgc" />
           <circle cx="18" cy="18" r="15.5" class="fg" style:stroke-dasharray="{(lvl.into / lvl.need) * 97.4} 97.4" />
         </svg>
         <span>{lvl.level}</span>
-      </button>
+      </button>{/if}
       <button class="icon-btn" onclick={() => go({ name: 'settings' })} aria-label="Settings"><Icon name="settings" /></button>
     </div>
   </header>
 
-  <section class="hello">
-    <p class="eyebrow">{dateLabel}</p>
-    <h1>{greeting}</h1>
-    <p class="muted">{titleFor(lvl.level)} · {app.profile.completed} {app.profile.completed === 1 ? 'puzzle' : 'puzzles'} finished</p>
-  </section>
+  {#if isNew}
+    <section class="welcome">
+      <div class="pitch">
+        <p class="kicker"><span class="dot"></span> Free to play · No ads · No sign-up</p>
+        <h1>The world’s most beautiful places, <em>one piece at a time.</em></h1>
+        <p class="lede">Real photographs of Banff’s turquoise lakes, quiet coastlines and painted hill towns, cut into satisfying tab-and-blank pieces that click together. A fresh puzzle every day. Plays right here in your browser, even offline.</p>
+        <div class="ctas">
+          <button class="btn primary big" onclick={playDaily}><Icon name="play" /> Play today’s puzzle</button>
+          <button class="btn big" onclick={scrollToCollections}>Browse {pictureCount} pictures</button>
+        </div>
+        <ul class="trust">
+          <li><Icon name="check" size={16} /> {daily.pieces}-piece daily puzzle, about {Math.max(3, Math.round(daily.pieces / 9))} minutes</li>
+          <li><Icon name="check" size={16} /> 12 to 1,000 pieces when you want a challenge</li>
+          <li><Icon name="check" size={16} /> Your progress saves itself on this device</li>
+        </ul>
+      </div>
+      <div class="showpiece">
+        <div class="frame"><HeroAssemble id="banff/1" /></div>
+        <span class="float f1"><Icon name="puzzle" size={15} /> Click!</span>
+        <span class="float f2"><Icon name="flame" size={15} fill /> Daily streaks</span>
+        <span class="caption">Moraine Lake, Banff · real photograph</span>
+      </div>
+    </section>
+
+    <section class="features" aria-label="Why you’ll like it">
+      <div><span class="fi"><Icon name="image" /></span><b>Real places, real photos</b><p>Turquoise Rockies lakes today, more destinations on the way, plus 110 hand-made illustrations.</p></div>
+      <div><span class="fi"><Icon name="calendar" /></span><b>A new puzzle every day</b><p>Short and relaxing. Keep a streak going with friends.</p></div>
+      <div><span class="fi"><Icon name="puzzle" /></span><b>Pieces that feel right</b><p>Classic tabs and blanks that snap together with a satisfying click.</p></div>
+      <div><span class="fi"><Icon name="heart" /></span><b>Calm by design</b><p>No ads, no timers you can’t hide, gentle music. Just you and the picture.</p></div>
+    </section>
+  {:else}
+    <section class="hello">
+      <p class="eyebrow">{dateLabel}</p>
+      <h1>{greeting}</h1>
+      <p class="muted">{titleFor(lvl.level)} · {app.profile.completed} {app.profile.completed === 1 ? 'puzzle' : 'puzzles'} finished</p>
+    </section>
+  {/if}
 
   <!-- Daily puzzle -->
   <section class="daily" aria-label="Today's puzzle">
@@ -109,7 +152,7 @@
     </section>
   {/if}
 
-  <section>
+  <section id="collections">
     <div class="section-head"><h2>Collections</h2><span class="muted">{packs.length} packs · {packs.reduce((n, p) => n + p.pictures.length, 0)} pictures</span></div>
     <div class="packs">
       {#each packs as p (p.id)}
@@ -148,8 +191,20 @@
     <input type="file" accept="image/*" bind:this={fileInput} onchange={onFile} hidden />
   </section>
 
+  {#if !install.installed && (install.available || install.ios)}
+    <section class="install">
+      <div class="ins-icon"><img src="./icons/icon-192.png" alt="" width="56" height="56" /></div>
+      <div class="ins-text">
+        <b>Put Quiet Pieces on your home screen</b>
+        <p>{showIosTip ? 'Tap the Share button in Safari, then “Add to Home Screen”.' : 'Opens like an app, full screen, and works without internet.'}</p>
+      </div>
+      <button class="btn dark small" onclick={addToHome}>{install.available ? 'Install' : 'How?'}</button>
+    </section>
+  {/if}
+
   <footer class="foot">
-    <p>Your progress stays on this device. No account, no tracking.</p>
+    <p class="foot-brand"><span class="mark small" aria-hidden="true"><Icon name="puzzle" size={14} /></span> Quiet Pieces</p>
+    <p>Free jigsaw puzzles. Your progress stays on this device. No account, no ads, no tracking.</p>
   </footer>
 </main>
 
@@ -166,6 +221,43 @@
   .ring .bgc { stroke: var(--line-2); }
   .ring .fg { stroke: var(--accent); stroke-linecap: round; transition: stroke-dasharray 0.6s var(--ease); }
 
+  .welcome { display: grid; grid-template-columns: 1fr; gap: 28px; padding: 18px 0 8px; align-items: center; }
+  @media (min-width: 900px) { .welcome { grid-template-columns: 1.05fr 1fr; gap: 48px; padding: 36px 0 20px; } }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px; padding: 6px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 650; font-size: 13px; }
+  .kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(200,85,61,.18); }
+  .pitch h1 { font-size: clamp(36px, 5.6vw, 64px); line-height: 1.02; letter-spacing: -0.025em; font-weight: 600; }
+  .pitch h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  .lede { font-size: clamp(16px, 1.6vw, 18.5px); line-height: 1.55; color: var(--ink-2); margin: 18px 0 24px; max-width: 34em; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn.big { height: 54px; padding: 0 26px; font-size: 16px; }
+  .trust { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 8px; color: var(--ink-2); font-size: 14.5px; }
+  .trust li { display: flex; gap: 10px; align-items: center; }
+  .trust :global(svg) { color: var(--good); flex: none; }
+  .showpiece { position: relative; }
+  @media (max-width: 899px) {
+    .showpiece { order: -1; margin: 0 6px; }
+    .pitch h1 { font-size: clamp(32px, 8.4vw, 44px); }
+    .lede { margin: 14px 0 20px; }
+    .ctas .btn { flex: 1 1 100%; }
+    .f1 { left: -4px; } .f2 { right: -2px; }
+  }
+  .frame { aspect-ratio: 3 / 2; border-radius: 22px; transform: rotate(1.5deg); background: radial-gradient(120% 90% at 50% 40%, var(--card), var(--bg-2)); box-shadow: var(--shadow-3); border: 1px solid var(--line); overflow: hidden; }
+  .float { position: absolute; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow-2); font-weight: 650; font-size: 13px; animation: bob 4s ease-in-out infinite; }
+  .f1 { top: 8%; left: -10px; color: var(--accent); }
+  .f2 { bottom: 14%; right: -8px; color: #e8792f; animation-delay: -2s; }
+  .caption { display: block; text-align: center; margin-top: 14px; font-size: 12.5px; color: var(--ink-3); }
+  @keyframes bob { 50% { transform: translateY(-6px); } }
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 30px; }
+  .features div { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px; box-shadow: var(--shadow-1); }
+  .features b { display: block; font-family: var(--display); font-size: 18px; font-weight: 600; margin: 10px 0 4px; }
+  .features p { margin: 0; color: var(--ink-2); font-size: 14px; }
+  .fi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+  .install { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-1); }
+  .ins-icon img { border-radius: 14px; display: block; }
+  .ins-text { flex: 1; }
+  .ins-text p { margin: 2px 0 0; color: var(--ink-2); font-size: 14px; }
+  .foot-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--ink-2); }
+  .mark.small { width: 24px; height: 24px; border-radius: 7px; }
   .hello { padding: 18px 0 18px; }
   .hello h1 { font-size: clamp(32px, 6vw, 46px); line-height: 1.05; margin: 6px 0 6px; }
   .hello p { margin: 0; }

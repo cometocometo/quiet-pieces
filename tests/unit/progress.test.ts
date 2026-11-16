@@ -70,6 +70,7 @@ describe('progression', () => {
   it('keeps the daily puzzle gentle', () => {
     for (const d of ['2026-11-15', '2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-21']) {
       expect(dailyPuzzle(d, 0).pieces).toBeLessThanOrEqual(40);
+      expect(dailyPuzzle(d, 0).pictureId.startsWith('banff/')).toBe(true);
       expect(dailyPuzzle(d, 10).pieces).toBeLessThanOrEqual(110);
       expect(['masterpiece', 'glass', 'modern', 'desert', 'night-skies']).not.toContain(dailyPuzzle(d).pictureId.split('/')[0]);
     }
