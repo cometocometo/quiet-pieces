@@ -9,6 +9,7 @@ for (const [name, opts] of [['desk', { viewport: { width: 1360, height: 860 } }]
   const p = await b.newPage(opts);
   p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
   await p.goto('http://localhost:5191/'); await p.waitForSelector('.welcome');
+  if (process.env.RETURNING) { await p.evaluate(async () => { const { kvSet } = await import('/src/data/db.ts'); await kvSet('profile', { xp: 900, completed: 7, piecesPlaced: 400, totalTime: 1, best: {}, done: {}, streak: { count: 2, best: 2, last: '' }, daily: {}, achievements: {}, favourites: [] }); }); await p.reload(); await p.waitForSelector('.welcome'); }
   await p.waitForSelector('canvas.ready', { timeout: 30000 });
   await p.waitForTimeout(900); await p.screenshot({ path: `tests/e2e/out/w-${name}-mid.png` });
   await p.waitForTimeout(4500); await p.screenshot({ path: `tests/e2e/out/w-${name}.png` });

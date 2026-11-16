@@ -3,7 +3,7 @@
   import { importUserPicture, prefetchThumbs } from '../../art/pictures';
   import { sfx } from '../../audio/audio';
   import { isUnlocked, MONETISATION } from '../../data/commerce';
-  import { dailyPuzzle, formatTime, levelOf, streakAlive, titleFor, today } from '../../data/progress';
+  import { dailyPuzzle, formatTime, levelOf, streakAlive, today } from '../../data/progress';
   import { app, go, saveFor, toast } from '../../app/state.svelte';
   import Icon from '../components/Icon.svelte';
   import Thumb from '../components/Thumb.svelte';
@@ -31,11 +31,6 @@
     else showIosTip = !showIosTip;
   }
 
-  const greeting = (() => {
-    const h = new Date().getHours();
-    return h < 5 ? 'Up late?' : h < 12 ? 'Good morning.' : h < 18 ? 'Good afternoon.' : 'Good evening.';
-  })();
-  const dateLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
   function openSetup(pictureId: string, dailyDate?: string) { sfx.tap(); app.setup = { pictureId, daily: dailyDate }; }
   function playDaily() {
@@ -61,7 +56,7 @@
 <main class="home">
   <header class="top">
     <div class="brand">
-      <span class="mark" aria-hidden="true"><Icon name="puzzle" size={18} /></span>
+      <span class="mark" aria-hidden="true"><Icon name="puzzle" size={30} /></span>
       <span class="word">Quiet Pieces</span>
     </div>
     <div class="actions">
@@ -76,8 +71,7 @@
     </div>
   </header>
 
-  {#if isNew}
-    <section class="welcome">
+  <section class="welcome">
       <div class="pitch">
         <p class="kicker"><span class="dot"></span> Free to play · No ads · No sign-up</p>
         <h1>The world’s most beautiful places, <em>one piece at a time.</em></h1>
@@ -106,13 +100,6 @@
       <div><span class="fi"><Icon name="puzzle" /></span><b>Pieces that feel right</b><p>Classic tabs and blanks that snap together with a satisfying click.</p></div>
       <div><span class="fi"><Icon name="heart" /></span><b>Calm by design</b><p>No ads, no timers you can’t hide, gentle music. Just you and the picture.</p></div>
     </section>
-  {:else}
-    <section class="hello">
-      <p class="eyebrow">{dateLabel}</p>
-      <h1>{greeting}</h1>
-      <p class="muted">{titleFor(lvl.level)} · {app.profile.completed} {app.profile.completed === 1 ? 'puzzle' : 'puzzles'} finished</p>
-    </section>
-  {/if}
 
   <!-- Daily puzzle -->
   <section class="daily" aria-label="Today's puzzle">
@@ -210,10 +197,10 @@
 
 <style>
   .home { max-width: 1120px; margin: 0 auto; padding: calc(12px + var(--safe-top)) 20px calc(40px + var(--safe-bottom)); }
-  .top { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .mark { width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: #fff; display: grid; place-items: center; transform: rotate(-8deg); box-shadow: 0 4px 12px -4px var(--accent); }
-  .word { font-family: var(--display); font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
+  .top { display: flex; align-items: center; justify-content: space-between; height: 84px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .mark { width: 56px; height: 56px; border-radius: 16px; background: var(--accent); color: #fff; display: grid; place-items: center; transform: rotate(-8deg); box-shadow: 0 4px 12px -4px var(--accent); }
+  .word { font-family: var(--display); font-size: clamp(28px, 4vw, 36px); font-weight: 650; letter-spacing: -0.02em; }
   .actions { display: flex; gap: 8px; align-items: center; }
   .level { position: relative; width: 42px; height: 42px; border: none; background: none; padding: 0; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
   .ring { position: absolute; inset: 0; transform: rotate(-90deg); }
@@ -258,9 +245,6 @@
   .ins-text p { margin: 2px 0 0; color: var(--ink-2); font-size: 14px; }
   .foot-brand { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--ink-2); }
   .mark.small { width: 24px; height: 24px; border-radius: 7px; }
-  .hello { padding: 18px 0 18px; }
-  .hello h1 { font-size: clamp(32px, 6vw, 46px); line-height: 1.05; margin: 6px 0 6px; }
-  .hello p { margin: 0; }
 
   .daily-card {
     position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; max-height: 460px; border: none; padding: 0; overflow: hidden;
